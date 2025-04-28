@@ -66,35 +66,26 @@ def crea_simulazioni(ruoli):
         dettaglio_popup.title(f"Torneo Simulazione {idx}")
         dettaglio_popup.geometry("600x700")
 
-        # Create a canvas and a scrollbar
-        canvas = tk.Canvas(dettaglio_popup)
-        scrollbar = tk.Scrollbar(dettaglio_popup, orient="vertical", command=canvas.yview)
-        scrollable_frame = tk.Frame(canvas)
+        # Crea un widget Text con scrollbar
+        text_widget = tk.Text(dettaglio_popup, wrap="word", font=("Arial", 11))
+        scrollbar = tk.Scrollbar(dettaglio_popup, orient="vertical", command=text_widget.yview)
+        text_widget.configure(yscrollcommand=scrollbar.set)
 
-        # Configure the scrollable frame
-        scrollable_frame.bind(
-            "<Configure>",
-            lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
-        )
-        canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
-        canvas.configure(yscrollcommand=scrollbar.set)
-
-        # Pack the canvas and scrollbar
-        canvas.pack(side="left", fill="both", expand=True)
+        # Posiziona il widget Text e la scrollbar
+        text_widget.pack(side="left", fill="both", expand=True)
         scrollbar.pack(side="right", fill="y")
 
-        label = tk.Label(scrollable_frame, text=f"Torneo Simulazione {idx}", font=("Arial", 14, "bold"))
-        label.pack(pady=10)
-
+        # Inserisci il contenuto del torneo nel widget Text
+        text_widget.insert("end", f"Torneo Simulazione {idx}\n\n")
         for num_squadra, squadra in enumerate(torneo, 1):
-            squadra_label = tk.Label(scrollable_frame, text=f"Squadra {num_squadra}:", font=("Arial", 12, "bold"))
-            squadra_label.pack(pady=5)
+            text_widget.insert("end", f"Squadra {num_squadra}:\n")
             for player in squadra:
-                player_text = f"{player['nome']} ({player['voto']})"
-                player_label = tk.Label(scrollable_frame, text=player_text, font=("Arial", 11))
-                player_label.pack()
-            separator = tk.Label(scrollable_frame, text="-------------------------------", font=("Arial", 10))
-            separator.pack(pady=5)
+                player_text = f"  {player['nome']} ({player['ruolo']} {player['voto']})\n"
+                text_widget.insert("end", player_text)
+            text_widget.insert("end", "-------------------------------\n")
+
+        # Rendi il widget Text non modificabile
+        text_widget.config(state="disabled")
 
         dettaglio_popup.transient()
         dettaglio_popup.grab_set()
@@ -144,26 +135,26 @@ def carica_file():
             if len(row) > 3:
                 role = row.iloc[1]
                 if role in roles:
-                    ruoli[role].append({"nome": row.iloc[2], "voto": row.iloc[3]})
+                    ruoli[role].append({"nome": row.iloc[2], "voto": row.iloc[3], "ruolo" : role})
             if len(row) > 8:
                 role = row.iloc[6]
                 if role in roles:
-                    ruoli[role].append({"nome": row.iloc[7], "voto": row.iloc[8]})
+                    ruoli[role].append({"nome": row.iloc[7], "voto": row.iloc[8], "ruolo" : role})
             if len(row) > 13:
                 role = row.iloc[11]
                 if role in roles:
                     ruoli[role].append(
-                        {"nome": row.iloc[12], "voto": row.iloc[13]})
+                        {"nome": row.iloc[12], "voto": row.iloc[13], "ruolo" : role})
             if len(row) > 18:
                 role = row.iloc[16]
                 if role in roles:
                     ruoli[role].append(
-                        {"nome": row.iloc[17], "voto": row.iloc[18]})
+                        {"nome": row.iloc[17], "voto": row.iloc[18], "ruolo" : role})
             if len(row) > 23:
                 role = row.iloc[21]
                 if role in roles:
                     ruoli[role].append(
-                        {"nome": row.iloc[22], "voto": row.iloc[23]})
+                        {"nome": row.iloc[22], "voto": row.iloc[23], "ruolo" : role})
 
         messagebox.showinfo(
             "File Caricato", f"Trovati ruoli e voti per {len(ruoli['P'])} portieri, {len(ruoli['D'])} difensori, {len(ruoli['DE'])} difensori esterni, {len(ruoli['C'])} centrocampisti, {len(ruoli['CE'])} centrocampisti esterni, {len(ruoli['A'])} attaccanti e {len(ruoli['AE'])} attaccanti esterni.")
